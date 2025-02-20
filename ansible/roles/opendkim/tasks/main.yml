@@ -1,0 +1,41 @@
+- name: Install opendkim
+  ansible.builtin.dnf:
+    name:
+    - opendkim
+    - opendkim-tools
+    state: present
+    install_weak_deps: False
+  register: _io_out
+- name: Results
+  when: _io_out.changed
+  ansible.builtin.debug: var=_io_out.results
+
+- name: Check for existing signing key
+  stat: path={{ (keydir_path, selector_name + ".private") | path_join }}
+  register: keystat
+
+- name: Generate new signing key block
+  when: not keystat.stat.exists
+  block:
+  - name: Generate signing key
+    command:
+      argv:
+      - opendkim-genkey
+      - --directory={{ keydir_path }}
+      - --selector={{ selector_name }}
+      - --domain={{ email_domain }}
+
+- name: Chown keys
+  file:
+    path: "{{ (keydir_path, selector_name + \".private\") | path_join }}"
+    owner: opendkim
+
+- name: Conf files
+  template: src=opendkim.conf.j2 dest=/etc/opendkim.conf owner=root group=root mode=0644
+  notify:
+  - Restart opendkim
+
+- name: Start and enable opendkim
+  service: name=opendkim enabled=yes state=started
+
+# vim: ts=2 sts=2 sw=2 expandtab

@@ -1,0 +1,62 @@
+#
+# {{ansible_managed}}
+#
+
+# Threshold to flag a message as spam.
+required_score 5.0
+
+# Don't encapsulate spam, just header-tag it.
+report_safe 0
+
+time_limit 30
+
+### Plugins ###
+loadplugin Mail::SpamAssassin::Plugin::MIMEHeader
+
+### Text language guesser ###
+loadplugin Mail::SpamAssassin::Plugin::TextCat
+ok_languages en
+add_header all TextCatLang _LANGUAGES_
+add_header all TextCatDebug _TEXTCATRESULTS_
+
+### Bayesian filtering yeah! ###
+bayes_path /var/mail/bayes_db/bayes
+bayes_file_mode 0775
+bayes_expiry_max_db_size 400000
+# 150000 = ~4 MiB
+bayes_auto_learn 0 # No auto learn, manual retraining only.
+
+
+### Custom rules ###
+# Attachment spam.
+mimeheader __S_MH_RAR     Content-Type =~ /x-rar-compressed/
+mimeheader __S_MH_ZIP     Content-Type =~ /zip/
+mimeheader __S_MH_PDF     Content-Type =~ /application\/pdf/
+meta       S_ARCHIVE_ATTACH  (__S_MH_RAR || __S_MH_ZIP)
+describe   S_ARCHIVE_ATTACH  email contains an archive file attachment
+score      S_ARCHIVE_ATTACH  2.0
+mimeheader S_DOC_ATTACHED Content-Type =~ /(msword|officedocument)/i
+describe   S_DOC_ATTACHED email contains a doc[x] file attachment
+score      S_DOC_ATTACHED 2.0
+mimeheader S_DOCM_ATTACHED Content-Type =~ /\.docm|ms-word\.document\.macroEnabled/i
+describe   S_DOCM_ATTACHED email contains a docm file attachment
+score      S_DOCM_ATTACHED 2.5
+mimeheader S_XLSM_ATTACHED Content-Type =~ /\.xlsm/i
+describe   S_XLSM_ATTACHED email contains a xlsm file attachment
+score      S_XLSM_ATTACHED 2.5
+mimeheader S_EXE_ATTACHED Content-Type =~ /\.exe/i
+describe   S_EXE_ATTACHED email contains a exe file attachment
+score      S_EXE_ATTACHED 3.5
+
+
+### Rescores of official rules ###
+score BAYES_999 2.0 # This one adds to BAYES_99.
+score BAYES_99 4.5
+score BAYES_95 4.2
+score BAYES_80 3.5
+score BAYES_60 2.0
+score BAYES_50 1.5
+score BAYES_40 -0.3
+score BAYES_20 -1.0
+score BAYES_00 -2.5
+

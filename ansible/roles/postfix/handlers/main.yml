@@ -1,0 +1,13 @@
+- name: Restart postfix
+  service: name=postfix state=restarted
+
+- name: Reload postfix
+  command: postfix reload
+
+#- name: Postmap
+#  command: postmap /etc/postfix/{{ item }}
+#  loop:
+#  - sender_action_triggers
+
+- name: Postalias
+  command: postalias /etc/postfix/aliases

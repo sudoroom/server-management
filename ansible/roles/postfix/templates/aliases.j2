@@ -1,0 +1,13 @@
+#
+# {{ansible_managed}}
+#
+
+# Root's mail should go to a responsible sysadmin.
+# TODO: this is not working, root email still ends up in the local spooler file?
+root: sean@zootboy.com
+
+# Basic system aliases -- these MUST be present
+MAILER-DAEMON: root
+postmaster: root
+webmaster: root
+abuse: root

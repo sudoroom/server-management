@@ -1,0 +1,26 @@
+- name: Install postfix
+  ansible.builtin.dnf: name=postfix,cyrus-sasl-plain state=present install_weak_deps=False
+  register: _ip_out
+- name: Results
+  when: _ip_out.changed
+  ansible.builtin.debug: var=_ip_out.results
+
+- name: Postfix configs
+  template: src={{ item }}.j2 dest=/etc/postfix/{{ item }} owner=root group=root mode=0644
+  loop:
+  - main.cf
+  - master.cf
+  - aliases
+  notify:
+  - Restart postfix
+  #- Postmap
+  - Postalias
+
+- name: Start and enable postfix
+  service: name=postfix enabled=yes state=started
+
+- name: Firewall rules for postfix
+  ansible.posix.firewalld: service={{ item }} permanent=true state=enabled immediate=yes
+  loop:
+  - smtp
+  # TODO: submission (if this ever becomes necessary)

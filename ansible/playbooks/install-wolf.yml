@@ -1,0 +1,29 @@
+# Pre-installation manual tasks:
+# 1. Provision the VM / server
+# 2. Install AlmaLinux 9
+# 3. Set up root user with SSH key
+# 4. Set hostname and proper DNS records to match
+# Then you can run this playbook.
+
+- name: Initial installation of wolf.sudoroom.org
+  hosts: wolf.sudoroom.org
+  remote_user: root
+  vars:
+    unbound_take_over_resolv: true
+    # The domain name that emails are sent & received from. Doesn't need to be the server's hostname.
+    email_domain: wolf.sudoroom.org
+  roles:
+  #- { role: common       }
+  #- { role: alma-tweaks  }
+  - { role: postfix      }
+  #- { role: unbound      }
+  #- { role: spamassassin }
+  - { role: opendkim     }
+#  - { role: nginx        }
+#  - { role: mailman3     }
+
+# General TODOs:
+# Copy msa_header_checks from arch
+
+
+# vim: ts=2 sts=2 sw=2 expandtab

@@ -1,0 +1,8 @@
+#
+# {{ansible_managed}}
+#
+
+# Use local unbound resolver for DNS queries
+nameserver ::1
+nameserver 127.0.0.1
+options edns0 trust-ad

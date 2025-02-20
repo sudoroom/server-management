@@ -1,0 +1,24 @@
+#
+# {{ ansible_managed }}
+#
+
+server:
+	interface: 127.0.0.1
+	interface: ::1
+	num-threads: 2
+	max-udp-size: 3072
+	chroot: ""
+	username: "unbound"
+	directory: "/etc/unbound"
+	use-syslog: yes
+	verbosity: 1
+	#log-servfail: yes
+	pidfile: "/var/run/unbound/unbound.pid"
+	deny-any: yes
+	trusted-keys-file: /etc/unbound/keys.d/*.key
+	auto-trust-anchor-file: "/var/lib/unbound/root.key"
+	serve-expired: yes
+	serve-expired-ttl: 14400
+
+include: /etc/unbound/conf.d/*.conf
+

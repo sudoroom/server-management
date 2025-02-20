@@ -1,0 +1,24 @@
+- name: Install unbound
+  ansible.builtin.dnf: name=unbound state=present install_weak_deps=False
+  register: _iu_out
+- name: Results
+  when: _iu_out.changed
+  ansible.builtin.debug: var=_iu_out.results
+
+- name: Config unbound
+  template: src=unbound.conf.j2 dest=/etc/unbound/unbound.conf owner=root group=root mode=0644
+  notify:
+  - Restart unbound
+
+- name: Deploy resolv.conf
+  when: unbound_take_over_resolv
+  template: src=resolv.conf.j2 dest=/etc/resolv.conf owner=root group=root mode=0644
+
+- name: Reconfig networkmanager resolv.conf behavior
+  when: unbound_take_over_resolv
+  template: src=nm-ignore-resolvconf.conf.j2 dest=/etc/NetworkManager/conf.d/ignore-resolvconf.conf owner=root group=root mode=0644
+  notify:
+  - Restart networkmanager
+
+- name: Start and enable unbound
+  service: name=unbound enabled=yes state=started

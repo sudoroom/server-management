@@ -1,0 +1,39 @@
+#
+# {{ansible_managed}}
+#
+
+compatibility_level = 3.5
+
+unknown_local_recipient_reject_code = 550
+
+inet_interfaces = all
+inet_protocols = all
+mydestination = $myhostname, localhost.$mydomain, localhost
+
+# TLS
+smtpd_tls_security_level = may
+smtp_tls_security_level = may
+smtp_tls_CApath = /etc/pki/tls/certs
+smtp_tls_CAfile = /etc/pki/tls/certs/ca-bundle.crt
+smtpd_tls_cert_file = /etc/pki/tls/certs/postfix.pem
+smtpd_tls_key_file = /etc/pki/tls/private/postfix.key
+
+# RHEL-specific paths
+command_directory = /usr/sbin
+queue_directory = /var/spool/postfix
+daemon_directory = /usr/libexec/postfix
+data_directory = /var/lib/postfix
+sendmail_path = /usr/sbin/sendmail.postfix
+newaliases_path = /usr/bin/newaliases.postfix
+mailq_path = /usr/bin/mailq.postfix
+manpage_directory = /usr/share/man
+sample_directory = /usr/share/doc/postfix/samples
+readme_directory = /usr/share/doc/postfix/README_FILES
+meta_directory = /etc/postfix
+shlib_directory = /usr/lib64/postfix
+
+mail_owner = postfix
+setgid_group = postdrop
+
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases

@@ -1,0 +1,27 @@
+#
+# {{ ansible_managed }}
+#
+
+# Sign & verify messages
+Mode  sv
+
+Syslog  yes
+UserID  opendkim:opendkim
+Socket  local:/run/opendkim/opendkim.sock
+Umask  002
+SendReports  no
+SoftwareHeader  yes
+Canonicalization  relaxed/relaxed
+MinimumKeyBits  1024
+OversignHeaders  From
+
+Domain  {{ email_domain }}
+Selector  {{ selector_name }}
+KeyFile  {{ (keydir_path, selector_name + ".private") | path_join }}
+
+# TODO: add other hosts that are allowed to relay
+InternalHosts  127.0.0.0/8, ::1
+
+# Debugging options.
+LogWhy  yes
+

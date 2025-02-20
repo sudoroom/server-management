@@ -1,0 +1,7 @@
+#
+# {{ansible_managed}}
+#
+
+# This prevents NetworkManager from clobbering the static resolv.conf pointing to the local unbound.
+[main]
+rc-manager = unmanaged

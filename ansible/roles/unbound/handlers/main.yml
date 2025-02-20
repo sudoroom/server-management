@@ -1,0 +1,5 @@
+- name: Restart unbound
+  service: name=unbound state=restarted
+
+- name: Restart networkmanager
+  service: name=NetworkManager state=restarted

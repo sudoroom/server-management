@@ -1,0 +1,99 @@
+- name: Install spamassassin
+  ansible.builtin.dnf:
+    name:
+    - spamassassin
+    - spamass-milter
+    - re2c
+    - perl-ExtUtils-CBuilder
+    - make
+    state: present
+    install_weak_deps: False
+  register: _is_out
+- name: Results
+  when: _is_out.changed
+  ansible.builtin.debug: var=_is_out.results
+
+- name: Create spamassassin group
+  ansible.builtin.group:
+    name: spamd
+    system: true
+
+- name: Create spamassassin user
+  ansible.builtin.user:
+    name: spamd
+    group: spamd 
+    home: /var/lib/spamassassin
+    password: '*'
+    shell: /usr/sbin/nologin
+    system: true
+
+- name: Add sa-milt to postfix group
+  ansible.builtin.user:
+    name: sa-milt
+    groups: postfix
+    append: true
+
+- name: Config spamassassin
+  template: src={{ item }}.j2 dest=/etc/mail/spamassassin/{{ item }} owner=root group=root mode=0644
+  loop:
+  - local.cf
+  - spamc.conf
+  notify:
+  - Restart spamassassin
+
+- name: Config spamd env
+  template: src=spamd-env.j2 dest=/etc/sysconfig/spamassassin owner=root group=root mode=0644
+  notify:
+  - Restart spamassassin
+
+- name: Tmpfiles.d
+  template: src=spamd-tmpfiles.j2 dest=/etc/tmpfiles.d/spamd.conf owner=root group=root mode=0644
+  notify:
+  - Reload tmpfiles
+
+- name: Selinux policies
+  when: (skip_selinux is not defined or not skip_selinux)
+  block:
+  - name: Remove old policy
+    command: semodule -r spamd
+    failed_when: false
+  - name: Copy policy TE file
+    copy: src=spamd.te dest=/tmp/
+  - name: Compile TE file
+    command: checkmodule -M -m -o /tmp/spamd.mod /tmp/spamd.te
+  - name: Build PP file
+    command: semodule_package -o /tmp/spamd.pp -m /tmp/spamd.mod
+  - name: Load PP file
+    command: semodule -i /tmp/spamd.pp
+  - name: Clean up SELinux files
+    file:
+      path: /tmp/{{item}}
+      state: absent
+    loop:
+    - spamd.pp
+    - spamd.mod
+    - spamd.te
+
+- name: Sync spamassassin rules
+  command: sa-update
+  register: result
+  changed_when: (result.rc == 0)
+  failed_when: (result.rc not in [0,1])
+  notify:
+  - Compile spamassassin rules
+  - Restart spamassassin
+
+- name: Start and enable spamassassin
+  service: name=spamassassin enabled=yes state=started
+
+- name: Configure spamass-milter
+  template: src={{ item }}.j2 dest=/etc/sysconfig/{{ item }} owner=root group=root mode=0644
+  loop:
+  - spamass-milter
+  notify:
+  - Restart spamass-milter
+
+- name: Start and enable spamass-milter
+  service: name=spamass-milter enabled=yes state=started
+
+# vim: ts=2 sts=2 sw=2 expandtab

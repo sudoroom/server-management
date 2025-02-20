@@ -1,0 +1,10 @@
+- name: Activate EPEL
+  ansible.builtin.dnf: name=epel-release state=present install_weak_deps=False
+  register: _aep_out
+- name: Results
+  when: _aep_out.changed
+  ansible.builtin.debug: var=_aep_out.results
+- name: Enable CRB repo
+  community.general.dnf_config_manager:
+    name: crb
+    state: enabled

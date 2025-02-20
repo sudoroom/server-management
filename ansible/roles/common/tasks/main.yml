@@ -1,0 +1,17 @@
+- name: Install basic utilities
+  ansible.builtin.dnf:
+    name:
+    - vim
+    - ldns-utils
+    - ldns
+    - htop
+    - policycoreutils-python-utils
+    state: present
+    install_weak_deps: False
+  register: _ibt_out
+- name: Results
+  when: _ibt_out.changed
+  ansible.builtin.debug: var=_ibt_out.results
+
+# TODO: ssh disable password auth
+# TODO: ssh restrict to specific users
