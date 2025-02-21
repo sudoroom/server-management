@@ -6,7 +6,8 @@
 Mode  sv
 
 Syslog  yes
-UserID  opendkim:opendkim
+# Drops permissions from root to these. Also sets user/group on the sock file.
+UserID  opendkim:postfix
 Socket  local:/run/opendkim/opendkim.sock
 Umask  002
 SendReports  no

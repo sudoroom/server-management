@@ -1,3 +1,10 @@
+# Note:
+# The package originally tries to run opendkim as the opendkim user through the systemd unit.
+# This plus using the unit file to make the /run directory led to some weird behaviors (like
+# the skel .bashrc & friends being added to the /run directory), so there's some extra stuff
+# here to switch over to a tmpfiles.d config to make the /run and a replacment unit to start
+# opendkim as root and let it drop its own privileges.
+
 - name: Install opendkim
   ansible.builtin.dnf:
     name:
@@ -9,6 +16,28 @@
 - name: Results
   when: _io_out.changed
   ansible.builtin.debug: var=_io_out.results
+
+- name: Add opendkim to postfix group
+  ansible.builtin.user:
+    name: opendkim
+    groups: postfix
+    append: true
+
+- name: Tmpfiles.d
+  template: src=opendkim-tmpfiles.j2 dest=/etc/tmpfiles.d/opendkim.conf owner=root group=root mode=0644
+  notify:
+  - Reload tmpfiles
+
+- name: Opendkim replacement service unit
+  template:
+    src: opendkim.service.j2
+    dest: /etc/systemd/system/opendkim.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - Daemon-reload
+  - Restart opendkim
 
 - name: Check for existing signing key
   stat: path={{ (keydir_path, selector_name + ".private") | path_join }}
@@ -25,10 +54,11 @@
       - --selector={{ selector_name }}
       - --domain={{ email_domain }}
 
+# Keys need to be owned by root otherwise SELinux gets unhappy.
 - name: Chown keys
   file:
     path: "{{ (keydir_path, selector_name + \".private\") | path_join }}"
-    owner: opendkim
+    owner: root
 
 - name: Conf files
   template: src=opendkim.conf.j2 dest=/etc/opendkim.conf owner=root group=root mode=0644

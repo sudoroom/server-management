@@ -9,7 +9,8 @@
 smtp      inet  n       -       n       -       -       smtpd
   -o smtpd_sasl_auth_enable=no
   -o milter_default_action=accept
-  -o smtpd_milters=unix:/run/spamass-milter/spamass-milter.sock
+  -o {smtpd_milters = unix:/run/spamass-milter/spamass-milter.sock
+                      unix:/run/opendkim/opendkim.sock }
 #  -o {smtpd_client_restrictions=check_client_access texthash:/etc/postfix/client_access, reject_unknown_reverse_client_hostname}
 #smtp      inet  n       -       n       -       1       postscreen
 #smtpd     pass  -       -       n       -       -       smtpd

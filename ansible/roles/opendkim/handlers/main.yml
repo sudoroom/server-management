@@ -1,2 +1,9 @@
+- name: Reload tmpfiles
+  command: systemd-tmpfiles --create --prefix=/run
+
+- name: Daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
 - name: Restart opendkim
   service: name=opendkim state=restarted

@@ -1,0 +1,17 @@
+#
+# {{ ansible_managed }}
+#
+
+[Unit]
+Description=DomainKeys Identified Mail (DKIM) Milter
+After=network.target nss-lookup.target syslog.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/sysconfig/opendkim
+ExecStart=/usr/sbin/opendkim -f $OPTIONS
+ExecReload=/bin/kill -USR1 $MAINPID
+# Start as root and let opendkim drop its own privs.
+User=root
+Group=root
+Restart=on-failure
