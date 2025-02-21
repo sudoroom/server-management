@@ -1,3 +1,6 @@
+- name: Reload tmpfiles
+  command: systemd-tmpfiles --create --prefix=/run
+
 - name: Restart spamassassin
   service: name=spamassassin state=restarted
 
@@ -6,6 +9,3 @@
 
 - name: Compile spamassassin rules
   command: sa-compile
-
-- name: Reload tmpfiles
-  command: systemd-tmpfiles --create --prefix=/run
