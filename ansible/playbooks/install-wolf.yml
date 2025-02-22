@@ -16,6 +16,7 @@
   #- { role: common       }
   #- { role: alma-tweaks  }
   - { role: postfix      }
+  - { role: sshd         }
   #- { role: unbound      }
   #- { role: spamassassin }
   - { role: opendkim     }

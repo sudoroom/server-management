@@ -1,0 +1,18 @@
+# Assume sshd is already installed, otherwise Ansible can't do anything.
+
+- name: Conf files for sshd
+  template: src={{ item }}.j2 dest=/etc/ssh/sshd_config.d/{{ item }} owner=root group=root mode=0644
+  loop:
+  - 00-ssh-keys-only.conf
+  - 00-allowed-users.conf
+  - 90-limits.conf
+  notify:
+  - Restart sshd
+
+- name: Remove distro drop-ins
+  file: path=/etc/ssh/sshd_config.d/{{ item }} state=absent
+  loop:
+  - 01-permitrootlogin.conf
+  - 50-redhat.conf
+
+# TODO: switch to non-standard port

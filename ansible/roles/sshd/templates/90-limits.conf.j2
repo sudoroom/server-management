@@ -1,0 +1,13 @@
+#
+# {{ ansible_managed }}
+#
+
+# Stuff from 50-redhat.conf that was worth including.
+Include /etc/crypto-policies/back-ends/opensshserver.config
+SyslogFacility AUTHPRIV
+UsePAM yes
+
+# Tighten various limits.
+LoginGraceTime 30s
+RekeyLimit 1G 72h
+MaxAuthTries 2

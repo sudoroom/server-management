@@ -1,0 +1,18 @@
+#
+# {{ ansible_managed }}
+#
+
+# Temporarily allow root since that is how Ansible is working at the moment.
+# TODO: switch to using a dedicated user with sudo permissions (lol)
+PermitRootLogin yes
+
+# Turn most ssh features off, and selectively re-enable them per user as needed.
+AllowAgentForwarding no
+AllowTcpForwarding no
+PermitTTY no
+PermitUserRC no
+
+AllowUsers root
+
+Match User root
+	PermitTTY yes
