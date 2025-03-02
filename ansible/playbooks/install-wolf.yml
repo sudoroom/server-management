@@ -13,8 +13,8 @@
     # The domain name that emails are sent & received from. Doesn't need to be the server's hostname.
     email_domain: wolf.sudoroom.org
   roles:
-  #- { role: common       }
-  #- { role: alma-tweaks  }
+  - { role: alma-tweaks  }
+  - { role: common       }
   - { role: postfix      }
   - { role: sshd         }
   #- { role: unbound      }
