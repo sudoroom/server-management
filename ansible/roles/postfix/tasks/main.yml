@@ -18,9 +18,3 @@
 
 - name: Start and enable postfix
   service: name=postfix enabled=yes state=started
-
-- name: Firewall rules for postfix
-  ansible.posix.firewalld: service={{ item }} permanent=true state=enabled immediate=yes
-  loop:
-  - smtp
-  # TODO: submission (if this ever becomes necessary)

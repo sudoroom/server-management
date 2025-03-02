@@ -1,0 +1,21 @@
+- name: Uninstall firewalld
+  ansible.builtin.dnf: name=firewalld state=absent
+  register: _d1_out
+- name: Results 1
+  when: _d1_out.changed
+  ansible.builtin.debug: var=_d1_out.results
+
+- name: Install nftables
+  ansible.builtin.dnf: name=nftables state=present
+  register: _d2_out
+- name: Results 2
+  when: _d2_out.changed
+  ansible.builtin.debug: var=_d2_out.results
+
+- name: Install nftables config
+  template: src=nftables.conf.j2 dest=/etc/sysconfig/nftables.conf owner=root group=root mode=0644
+  notify:
+  - Restart nftables
+
+- name: Enable and start nftables
+  service: name=nftables enabled=yes state=started

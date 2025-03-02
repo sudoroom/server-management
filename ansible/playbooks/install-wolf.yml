@@ -15,6 +15,7 @@
   roles:
   - { role: alma-tweaks  }
   - { role: common       }
+  - { role: firewall     }
   - { role: postfix      }
   - { role: sshd         }
   #- { role: unbound      }
