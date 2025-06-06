@@ -32,6 +32,11 @@
 # - Copy msa_header_checks from arch
 # spamassassin
 # - Get bayes set up and working
+# System-wide
+# - Backups of data (e.g. mailing list archives)
+# Export/Import
+# - Process to export data from old server
+# - Playbook to import old data
 
 
 # vim: ts=2 sts=2 sw=2 expandtab
