@@ -22,6 +22,7 @@
   #- { role: spamassassin }
   - { role: opendkim     }
 #  - { role: nginx        }
+  - { role: mariadb      }
 #  - { role: mailman3     }
 
 # General TODOs:

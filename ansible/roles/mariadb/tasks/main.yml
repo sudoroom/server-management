@@ -1,0 +1,25 @@
+- name: Install mariadb
+  ansible.builtin.dnf:
+    name:
+    - mariadb-server
+    state: present
+    install_weak_deps: False
+  register: _im_out
+- name: Results install
+  when: _im_out.changed
+  ansible.builtin.debug: var=_im_out.results
+
+- name: Initialize mariadb
+  command: >-
+    mariadb-install-db
+    --user=mysql --group=mysql
+    --basedir=/usr --datadir=/var/lib/mysql
+    --auth-root-authentication-method=socket
+  args:
+    creates: /var/lib/mysql/mysql
+
+  # TODO: config files
+  # TODO: enable/start service
+  # TODO: rest of stuff from https://gitlab.archlinux.org/archlinux/infrastructure/-/blob/master/roles/mariadb/tasks/main.yml?ref_type=heads
+
+# vim: ts=2 sts=2 sw=2 expandtab
