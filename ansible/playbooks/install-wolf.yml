@@ -5,13 +5,13 @@
 # 4. Set hostname and proper DNS records to match
 # Then you can run this playbook.
 
-- name: Initial installation of wolf.sudoroom.org
-  hosts: wolf.sudoroom.org
+- name: Initial installation of wolf.zootboy.com
+  hosts: wolf.zootboy.com
   remote_user: root
   vars:
     unbound_take_over_resolv: true
     # The domain name that emails are sent & received from. Doesn't need to be the server's hostname.
-    email_domain: wolf.sudoroom.org
+    email_domain: wolf.zootboy.com
   roles:
   - { role: alma-tweaks  }
   - { role: common       }
@@ -25,7 +25,13 @@
 #  - { role: mailman3     }
 
 # General TODOs:
-# Copy msa_header_checks from arch
+# firewall
+# - Complete port blocking on outgoing connections
+# postfix
+# - Set up circular buffer mail sampler
+# - Copy msa_header_checks from arch
+# spamassassin
+# - Get bayes set up and working
 
 
 # vim: ts=2 sts=2 sw=2 expandtab
