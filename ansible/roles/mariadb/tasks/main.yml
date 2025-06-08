@@ -18,8 +18,25 @@
   args:
     creates: /var/lib/mysql/mysql
 
-  # TODO: config files
-  # TODO: enable/start service
-  # TODO: rest of stuff from https://gitlab.archlinux.org/archlinux/infrastructure/-/blob/master/roles/mariadb/tasks/main.yml?ref_type=heads
+# TODO: config files
+# TODO: enable/start service
+# TODO: rest of stuff from https://gitlab.archlinux.org/archlinux/infrastructure/-/blob/master/roles/mariadb/tasks/main.yml?ref_type=heads
+# TODO: MariaDB is used by:
+# - Mailman
+#   - mailman3
+#   - mailman3web
+# - OpenDMARC
+#   - opendmarc
+# - Wordpress
+#   - baps
+# - MediaWiki
+#   - sudowiki
+#
+# - Seltzer
+#   - seltzer
+# - ???
+#   - sudo_api
+# - CivicCRM ?
+#   - sudodb
 
 # vim: ts=2 sts=2 sw=2 expandtab

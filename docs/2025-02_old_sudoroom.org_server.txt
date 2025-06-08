@@ -13,12 +13,20 @@ Existing server as of 2025-02
 - Mailing lists for sudoroom.org
   - List archives
 - SudoHumans?
+  - Can ignore this, it was an old version and the current version is running on a different server
 - Main sudoroom.org site
 - sudoroom wiki
-- sudo-mailer (stripe webhook) ???
+
+== Old stuff to ignore ==
+- meshmap.sudoroom.org
 - stuff.sudoroom.org
-- meshmap.sudoroom.org ?
-- every.cat ???
+  - Will be re-created in the future
+- sudo-mailer (stripe webhook)
+  - Will be superseded by MemberMatters
+- every.cat
+- seltzer
+  - https://github.com/elplatt/seltzer
+  - Seems to be an old CRM, not used
 
 == Subsystems ==
 - Apache
