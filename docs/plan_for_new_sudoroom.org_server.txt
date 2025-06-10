@@ -1,0 +1,30 @@
+== Plan for new sudoroom.org server ==
+- OS
+  - AlmaLinux
+  - TODOs
+    - Swap test VM over to Alma 10
+- Mailing lists
+  - TODOs
+    - Figure out how to dump all data from existing server
+      - Archives
+      - Memberships
+    - Write an install task to install mailman3
+    - Write a playbook to export the old server and import it all to the new one
+- Mailserver
+  - TODOs
+    - Set up rolling message copier to keep copies of all incoming and outgoing messages for later analysis
+- Spam filter
+  - TODOs
+    - Set up proper flows for messages through filter
+    - Set up rejections of obvious spam
+    - Make sure mailman is set up to inspect spam score and hold messages that are suspect
+- Wiki
+  - TODOs
+    - Export old wiki and import to new server
+- Main website
+  - TODOs
+    - Export existing site and import to new server
+    - Make sure any wordpress mods / plugins are still needed / still work
+
+
+# vim: nocindent:autoindent:ts=2:sw=2:expandtab:

@@ -8,3 +8,5 @@
   community.general.dnf_config_manager:
     name: crb
     state: enabled
+
+# TODO: make sure selinux is enabled
