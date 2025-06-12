@@ -1,3 +1,31 @@
+# Swapfile is needed if VM ram is below 2 GiB because DNF is a bloated, ram-hungry piece of shit.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1907030
+# TODO: gate this behind a check if the system RAM is >= 2 GiB
+- name: Create swapfile
+  command: dd if=/dev/zero of=/swapfile bs=1M count=1024
+  args:
+    creates: /swapfile
+
+- name: Check swapfile inited
+  ansible.builtin.shell: file --brief /swapfile | grep --quiet ^Linux\ swap
+  register: isi
+  failed_when: (isi.rc not in [0,1])
+  changed_when: false
+
+- name: Init swapfile
+  command: mkswap /swapfile
+  when: isi.rc != 0
+
+- name: Check swapfile enabled
+  ansible.builtin.shell: swapon | grep --quiet ^/swapfile
+  register: ise
+  failed_when: (ise.rc not in [0,1])
+  changed_when: false
+
+- name: Enable swapfile
+  command: swapon /swapfile
+  when: ise.rc != 0
+
 - name: Activate EPEL
   ansible.builtin.dnf: name=epel-release state=present install_weak_deps=False
   register: _aep_out
