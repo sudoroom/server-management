@@ -9,4 +9,6 @@
     name: crb
     state: enabled
 
-# TODO: make sure selinux is enabled
+- name: Set SELinux policy
+  template: src=selinux-config.j2 dest=/etc/selinux/config owner=root group=root mode=0644
+  notify: Reboot host
