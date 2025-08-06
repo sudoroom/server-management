@@ -2,7 +2,7 @@
 # https://bugzilla.redhat.com/show_bug.cgi?id=1907030
 # TODO: gate this behind a check if the system RAM is >= 2 GiB
 - name: Create swapfile
-  command: dd if=/dev/zero of=/swapfile bs=1M count=1024
+  command: dd if=/dev/zero of=/swapfile bs=1M count=2048
   args:
     creates: /swapfile
 
@@ -25,6 +25,15 @@
 - name: Enable swapfile
   command: swapon /swapfile
   when: ise.rc != 0
+
+- name: Add swapfile to boot mounts
+  template: src=swapfile.swap.j2 dest=/etc/systemd/system/swapfile.swap owner=root group=root mode=0644
+
+- name: Enable swapfile systemd unit
+  systemd_service:
+    daemon_reload: true
+    name: swapfile.swap
+    enabled: yes
 
 - name: Activate EPEL
   ansible.builtin.dnf: name=epel-release state=present install_weak_deps=False

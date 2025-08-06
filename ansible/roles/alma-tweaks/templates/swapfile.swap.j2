@@ -1,0 +1,13 @@
+#
+# {{ansible_managed}}
+#
+
+[Unit]
+Description=Main swapfile
+
+[Swap]
+What=/swapfile
+TimeoutSec=120
+
+[Install]
+WantedBy=swap.target
