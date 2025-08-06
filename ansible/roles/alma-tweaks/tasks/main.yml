@@ -49,3 +49,9 @@
 - name: Set SELinux policy
   template: src=selinux-config.j2 dest=/etc/selinux/config owner=root group=root mode=0644
   notify: Reboot host
+
+# There is no need for this cache, as DNF/packages are only being touched during system updates.
+- name: Disable DNF makecace
+  service: name=dnf-makecache.timer enabled=no state=stopped
+
+# vim: nocindent autoindent ts=2 sts=2 sw=2 expandtab
