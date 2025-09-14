@@ -2,6 +2,7 @@
   ansible.builtin.dnf:
     name:
     - mariadb-server
+    - python3-PyMySQL # Needed for ansible mysql module
     state: present
     install_weak_deps: False
   register: _im_out
@@ -17,6 +18,45 @@
     --auth-root-authentication-method=socket
   args:
     creates: /var/lib/mysql/mysql
+
+- name: Start and enable mariadb
+  service: name=mariadb enabled=yes state=started
+
+# The init script sets the root user to have an invalid password. This is good.
+# It also makes a couple of anonymous users, which we don't want.
+- name: Remove all anonymous user accounts
+  community.mysql.mysql_user:
+    name: ''
+    host_all: true
+    state: absent
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    column_case_sensitive: True # Silence a pointless warning.
+
+# Make the user but don't set a password; only allow unix user auth.
+- name: Create mariadb mailman db user
+  community.mysql.mysql_user:
+    name: mailman
+    state: present
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    plugin: unix_socket
+    priv:
+      'mailman3.*':    'ALL'
+      'mailman3-web.*': 'ALL'
+    column_case_sensitive: True # Silence a pointless warning.
+
+- name: Create mariadb mailman databases
+  community.mysql.mysql_db:
+    name: "{{ item }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
+  loop:
+    - mailman3
+    - mailman3-web
+
+# Mailman3 auto-populates the tables / structure of mailman3 when first started.
+
+# TODO: can we get away with no password? Need to:
+#       - Make sure sqlalchemy connection uses unix socket
+#       - Make sure we know what user the mailman tasks that do DB stuff operate as
 
 # TODO: config files
 # TODO: enable/start service

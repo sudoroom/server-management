@@ -12,25 +12,38 @@
     unbound_take_over_resolv: true
     # The domain name that emails are sent & received from. Doesn't need to be the server's hostname.
     email_domain: wolf.zootboy.com
+    # Email address of the responsible sysadmin. Used by mailman.
+    site_owner_email_addr: sean@seangreenslade.com
+    # Email address that is used as a fallback "From" for things like confirmation emails.
+    default_from_email_addr: postmaster@wolf.zootboy.com
   roles:
-  - { role: alma-tweaks  }
-  - { role: common       }
-  - { role: firewall     }
+#  - { role: alma-tweaks  }
+#  - { role: common       }
+#  - { role: firewall     }
   - { role: postfix      }
-  - { role: sshd         }
-  #- { role: unbound      }
-  #- { role: spamassassin }
-  - { role: opendkim     }
+#  - { role: sshd         }
+#  - { role: unbound      }
+#  - { role: spamassassin }
+#  - { role: opendkim     }
 #  - { role: nginx        }
   - { role: mariadb      }
-#  - { role: mailman3     }
+  - { role: mailman3     }
 
 # General TODOs:
+# OS
+# - Switch to Alma 10
 # firewall
 # - Complete port blocking on outgoing connections
 # postfix
 # - Set up circular buffer mail sampler
 # - Copy msa_header_checks from arch
+# nginx
+# - Get basic server working
+# - Automatic LE certs
+# - Postorious
+# - Hyperkitty
+# - Wordpress
+# - Mediawiki
 # spamassassin
 # - Get bayes set up and working
 # System-wide

@@ -37,3 +37,17 @@ setgid_group = postdrop
 
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
+
+### Mailman3 stuff ###
+# Support the default VERP delimiter.
+recipient_delimiter = +
+owner_request_special = no
+
+# TODO: switch from hash to a different DB?
+# TODO: does something need to call postmap for these?
+transport_maps =
+    hash:/var/lib/mailman3/data/postfix_lmtp
+local_recipient_maps =
+    hash:/var/lib/mailman3/data/postfix_lmtp
+relay_domains =
+    hash:/var/lib/mailman3/data/postfix_domains

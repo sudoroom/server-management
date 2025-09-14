@@ -1,0 +1,16 @@
+#
+# {{ ansible_managed_note }}
+#
+
+#bind = ['127.0.0.1:8000']
+bind = ['unix:/run/mailman3/gunicorn.sock']
+proc_name = "mailman-web"
+# If you are having response issues you can tune the number of workers.
+# The suggested starting point is (2 x $num_cores) + 1
+# See https://docs.gunicorn.org/en/latest/design.html#how-many-workers
+workers = 2
+# TODO: what to set this to?
+#chdir = "/opt/mailman/mm"
+pidfile = "/run/mailman3/gunicorn.pid"
+accesslog = "/var/log/mailman3/gunicorn-access.log"
+errorlog = "/var/log/mailman3/gunicorn-error.log"

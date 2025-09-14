@@ -1,0 +1,89 @@
+#
+# {{ ansible_managed_note }}
+#
+
+# This is the config for Hyperkitty/Postorius. The core mailman systems are
+# configured separately in the /etc/mailman.cfg file.
+
+# Note that this is a python script, not just a plain config file.
+
+# Get the default settings. Check these files for said defaults:
+# /usr/lib/python3.9/site-packages/mailman_web/settings/base.py
+# /usr/lib/python3.9/site-packages/mailman_web/settings/mailman.py
+from mailman_web.settings.base    import *
+from mailman_web.settings.mailman import *
+
+# Also ref the online docs:
+# https://docs.mailman3.org/projects/mailman-web/en/latest/settings.html
+
+# TODO: leaving BASE_DIR at default /opt dir, but deliberately not making that dir.
+# See if this breaks anything (it shouldn't, we're trying to manually define all
+# paths).
+
+#: Default list of admins who receive the emails from error logging.
+ADMINS = (
+    ('Mailman Suite Admin', '{{ site_owner_email_addr }}'),
+)
+
+# TODO: will this barf with missing USER and PASSWORD options? It shouldn't since we're using unix user auth...
+# Mariadb database setup.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': '/var/lib/mysql/mysql.sock',
+        'NAME': 'mailman3-web',
+        'OPTIONS': {'charset': 'utf8mb4'},
+    }
+}
+
+# 'collectstatic' command will copy all the static files here.
+# Alias this location from your webserver to `/static`
+STATIC_ROOT = '/var/lib/mailman3web/static'
+
+# enable the 'compress' command.
+COMPRESS_ENABLED = True
+
+# Make sure that this directory is created or Django will fail on start.
+LOGGING['handlers']['file']['filename'] = '/var/log/mailman3/web.log'
+
+#: See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = [
+    "localhost", # Needed by archiving API from Mailman
+    "127.0.0.1",
+	"{{ email_domain }}",
+    # "lists.your-domain.org",
+    # Add here all production domains you have.
+]
+
+# TODO Check that this is working when switching over to the real domains.
+#: See https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins
+#: For Django <4.0 these are of the form 'lists.example.com' or
+#: '.example.com' to include subdomains and for Django >=4.0 they include
+#: the scheme as in 'https://lists.example.com' or 'https://*.example.com'.
+CSRF_TRUSTED_ORIGINS = [
+	"https://{{ email_domain }}",
+    # "lists.your-domain.org",
+    # Add here all production domains you have.
+]
+
+#: Current Django Site being served. This is used to customize the web host
+#: being used to serve the current website. For more details about Django
+#: site, see: https://docs.djangoproject.com/en/dev/ref/contrib/sites/
+SITE_ID = 1
+
+# Secret key stored in a separate file, generated once by ansible.
+with open('/var/lib/mailman3web/secret_key') as f:
+    SECRET_KEY = f.read().strip()
+
+# Set this to match the api_key setting in
+# /opt/mailman/mm/mailman-hyperkitty.cfg (quoted here, not there).
+with open('/var/lib/mailman3web/hyperkitty_secret_key') as f:
+    MAILMAN_ARCHIVER_KEY = f.read().strip()
+
+# The sender of emails from Django such as address confirmation requests.
+# Set this to a valid email address.
+DEFAULT_FROM_EMAIL = "{{ default_from_email_addr }}"
+
+# The sender of error messages from Django. Set this to a valid email
+# address.
+SERVER_EMAIL = "{{ default_from_email_addr }}"

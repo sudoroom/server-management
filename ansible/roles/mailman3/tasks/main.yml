@@ -1,0 +1,139 @@
+# Mailman relies on a lot of postfix config, most of which is in the postfix role.
+
+# Mailman is spread across a bunch of different packages.
+- name: Install mailman3 components
+  ansible.builtin.dnf:
+    name:
+    - mailman3
+    - hyperkitty
+    - postorius
+    - python3-mailman-web
+    - lynx
+    - python3-mysqlclient
+    - sassc
+    state: present
+    install_weak_deps: False
+
+- name: Mailman main config
+  template: src=mailman.cfg.j2 dest=/etc/mailman.cfg owner=root group=mailman mode=0640
+  notify:
+  - Restart mailman
+
+- name: Start and enable mailman
+  service: name=mailman3 enabled=yes state=started
+
+- name: Start and enable mailman digest timer
+  service: name=mailman3-digests.timer enabled=yes state=started
+
+- name: Create static dir for mailman3-web
+  file:
+    path: /var/lib/mailman3web/static
+    state: directory
+    mode: '0755'
+    owner: mailman
+    group: mailman
+
+# Postorius secret key (Django-specific thing?)
+- name: Create Postorius secret key file with tight permissions
+  file:
+    path: /var/lib/mailman3web/secret_key
+    state: touch
+    mode: '0640'
+    owner: mailman
+    group: mailman
+
+- name: Check key existence
+  stat:
+    path: /var/lib/mailman3web/secret_key
+  register: dsk_res
+
+- name: Randomly generate the django secret key
+  when: dsk_res.stat.size == 0
+  shell: tr -dc A-Za-z0-9 </dev/urandom | head -c 40 > /var/lib/mailman3web/secret_key
+
+# Hyperkitty archiving key
+- name: Create Hyperkitty secret key file with tight permissions
+  file:
+    path: /var/lib/mailman3web/hyperkitty_secret_key
+    state: touch
+    mode: '0640'
+    owner: mailman
+    group: mailman
+
+- name: Check HK key existence
+  stat:
+    path: /var/lib/mailman3web/hyperkitty_secret_key
+  register: hsk_res
+
+- name: Randomly generate the hyperkitty secret key
+  when: hsk_res.stat.size == 0
+  shell: tr -dc A-Za-z0-9 </dev/urandom | head -c 40 > /var/lib/mailman3web/hyperkitty_secret_key
+
+# This is done after the above key creation steps to make the config file valid.
+- name: Mailman web config
+  template: src=settings.py.j2 dest=/etc/mailman3/settings.py owner=root group=mailman mode=0640
+  # TODO: restart whatever services need to be to re-read this file.
+  #notify:
+  #- Restart mailmanweb
+
+- name: Run mmw migrate
+  become: true
+  become_user: mailman
+  shell: mailman-web migrate
+
+- name: Run mmw collect static
+  # TODO: do these need to be done as the mailman user? Hopefully not, as root owning these files is a tiny bit of hardening.
+  shell: mailman-web collectstatic --clear --noinput
+
+- name: Run mmw compress
+  # TODO: do these need to be done as the mailman user? Hopefully not, as root owning these files is a tiny bit of hardening.
+  shell: mailman-web compress
+
+# Skipped mailman-web compilemessages since it error'd. TODO: revisit this later if it becomes a problem.
+
+# Going with gunicorn because the internet said it's better. We'll see...
+# Note: swapping port 8000 bind for a unix socket.
+- name: Mailman gunicorn config
+  template: src=gunicorn.conf.py.j2 dest=/etc/mailman3/gunicorn.conf.py owner=root group=mailman mode=0640
+  # TODO
+  #notify:
+  #- Restart mm3-gunicorn
+
+- name: Mailman gunicorn service
+  template: src=mailman-web-gunicorn.service.j2 dest=/etc/systemd/system/mailman-web-gunicorn.service owner=root group=root mode=0644
+  # TODO
+  #notify:
+  #- Restart mm3-gunicorn
+  register: _cgs_out
+
+- name: Daemon-reload
+  when: _cgs_out.changed
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start and enable mailman web gunicorn service
+  service: name=mailman-web-gunicorn enabled=yes state=started
+
+# TODO: qcluster service
+
+# Mailman runs in Alma as the "mailman" user
+
+# TODO: mailman-hyperkitty.cfg
+
+# Install guide: https://docs.mailman3.org/en/latest/install/virtualenv.html#virtualenv-install
+
+# TODO:
+# Mailman web
+# - full text search?
+# Hyperkitty
+# Postorius
+# Verify that mariadb stuff for mailman-web is working
+# Webserver alias the postorius subdir /static to /var/lib/mailman3web/static
+# Nginx end of gunicorn
+#
+# Refs:
+# https://dzone.com/articles/use-mysql-without-a-password-and-still-be-secure
+# https://mariadb.com/kb/en/authentication-plugin-unix-socket/
+# https://stackoverflow.com/questions/29355674/how-to-connect-mysql-database-using-pythonsqlalchemy-remotely
+
+# vim: nocindent autoindent ts=2 sts=2 sw=2 expandtab

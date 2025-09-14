@@ -1,0 +1,74 @@
+#
+# {{ ansible_managed_note }}
+#
+
+# This is the config for the core mailman systems. Hyperkitty/Postorius are
+# configured separately in the /etc/mailman3/settings.py file.
+
+# Main docs for this file exist at:
+# https://docs.mailman3.org/projects/mailman/en/latest/src/mailman/config/docs/config.html
+
+[mailman]
+# This address is the "site owner" address.  Certain messages which must be
+# delivered to a human, but which can't be delivered to a list owner (e.g. a
+# bounce from a list owner), will be sent to this address.  It should point to
+# a human.
+site_owner: {{ site_owner_email_addr }}
+
+# Set the paths to be Fedora-compliant
+layout: fhs
+[paths.fhs]
+bin_dir:   /usr/libexec/mailman3
+var_dir:   /var/lib/mailman3
+queue_dir: /var/spool/mailman3
+log_dir:   /var/log/mailman3
+lock_dir:  /run/lock/mailman3
+ext_dir:   /etc/mailman3.d
+pid_file:  /run/mailman3/master.pid
+
+# Not doing NNTP at all, so disable its runner.
+[runner.nntp]
+start: no
+
+[database]
+class: mailman.database.mysql.MySQLDatabase
+url: mysql+pymysql://localhost/mailman3?unix_socket=/var/lib/mysql/mysql.sock&charset=utf8mb4&use_unicode=1
+
+# For the HyperKitty archiver.
+### TODO - enable when ready
+#[archiver.hyperkitty]
+#class: mailman_hyperkitty.Archiver
+#enable: yes
+#configuration: /etc/mailman3/mailman-hyperkitty.cfg
+
+# Settings for the admin shell.
+[shell]
+history_file: $var_dir/history.py
+
+[mta]
+incoming: mailman.mta.postfix.LMTP
+outgoing: mailman.mta.deliver.deliver
+lmtp_host: 127.0.0.1
+lmtp_port: 8024
+smtp_host: 127.0.0.1
+smtp_port: 25
+verp_confirmations: yes
+verp_personalized_deliveries: yes
+verp_delivery_interval: 1
+
+# The REST API service - for internal use only, do not expose on public interfaces!
+[webservice]
+hostname: 127.0.0.1
+port: 8001
+use_https: no
+admin_user: restadmin
+admin_pass: {{ mailman3_restadmin_pw }}
+api_version: 3.1
+
+
+### TODO
+# The local URL part to the administration interface (Postorius).
+# The full URL will be constructed by prepending the domain URL set in the
+# list's domain properties.
+#listinfo_url = /postorius/
+
