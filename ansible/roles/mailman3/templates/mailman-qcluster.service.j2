@@ -1,0 +1,19 @@
+#
+# {{ ansible_managed_note }}
+#
+
+[Unit]
+Description=Mailman async task runner
+Requires=network.target mariadb.service mailman3.service
+After=   network.target mariadb.service mailman3.service
+
+[Service]
+Environment="PYTHONPATH=/etc/mailman3/"
+User=mailman
+Group=mailman
+ExecStart=/usr/bin/mailman-web qcluster --pythonpath /etc/mailman3 --settings settings
+KillSignal=SIGINT
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

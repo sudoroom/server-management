@@ -106,15 +106,25 @@
   #- Restart mm3-gunicorn
   register: _cgs_out
 
-- name: Daemon-reload
-  when: _cgs_out.changed
-  ansible.builtin.systemd_service:
-    daemon_reload: true
-
 - name: Start and enable mailman web gunicorn service
   service: name=mailman-web-gunicorn enabled=yes state=started
 
-# TODO: qcluster service
+- name: Mailman qcluster service
+  template: src=mailman-qcluster.service.j2 dest=/etc/systemd/system/mailman-qcluster.service owner=root group=root mode=0644
+  # TODO
+  #notify:
+  #- Restart mm3-qcluster
+  register: _cqc_out
+
+  # TODO: cronjobs for mailman web
+
+- name: Daemon-reload
+  when: _cgs_out.changed or _cqc_out.changed
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start and enable mailman qcluster gunicorn service
+  service: name=mailman-qcluster enabled=yes state=started
 
 # Mailman runs in Alma as the "mailman" user
 
