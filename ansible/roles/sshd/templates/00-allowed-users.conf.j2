@@ -2,8 +2,7 @@
 # {{ ansible_managed_note }}
 #
 
-# Temporarily allow root since that is how Ansible is working at the moment.
-# TODO: switch to using a dedicated user with sudo permissions (lol)
+# Disallow root user to log in at all.
 PermitRootLogin yes
 
 # Turn most ssh features off, and selectively re-enable them per user as needed.
@@ -12,7 +11,7 @@ AllowTcpForwarding no
 PermitTTY no
 PermitUserRC no
 
-AllowUsers root
+AllowUsers sean
 
-Match User root
+Match Group wheel
 	PermitTTY yes

@@ -2,7 +2,7 @@
 # {{ ansible_managed_note }}
 #
 
-compatibility_level = 3.5
+compatibility_level = 3.6
 
 unknown_local_recipient_reject_code = 550
 
@@ -35,19 +35,20 @@ shlib_directory = /usr/lib64/postfix
 mail_owner = postfix
 setgid_group = postdrop
 
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+# TODO: disable local(8) recipients entirely? Then these could be empty.
+alias_maps     = texthash:/etc/postfix/aliases
+alias_database = texthash:/etc/postfix/aliases
 
 ### Mailman3 stuff ###
 # Support the default VERP delimiter.
 recipient_delimiter = +
 owner_request_special = no
 
-# TODO: switch from hash to a different DB?
-# TODO: does something need to call postmap for these?
+# TODO: these were originally hash:, but this is not installed by default in RHEL 10.
+# Trying texthash, hopefully these tables are small enough for this to be OK.
 transport_maps =
-    hash:/var/lib/mailman3/data/postfix_lmtp
+    texthash:/var/lib/mailman3/data/postfix_lmtp
 local_recipient_maps =
-    hash:/var/lib/mailman3/data/postfix_lmtp
+    texthash:/var/lib/mailman3/data/postfix_lmtp
 relay_domains =
-    hash:/var/lib/mailman3/data/postfix_domains
+    texthash:/var/lib/mailman3/data/postfix_domains

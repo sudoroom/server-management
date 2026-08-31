@@ -6,12 +6,65 @@
     - ldns
     - htop
     - policycoreutils-python-utils
+    - bash-completion
     state: present
     install_weak_deps: False
   register: _ibt_out
-- name: Results
+- name: IBT results
   when: _ibt_out.changed
   ansible.builtin.debug: var=_ibt_out.results
 
+# NOTE: wanted to remove os-prober, but it's required by various grub packages =/
+- name: Disable os-prober
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_DISABLE_OS_PROBER'
+    line: GRUB_DISABLE_OS_PROBER=true
+  notify: Update GRUB2
+
+#- name: Remove unneeded packages
+#  ansible.builtin.dnf:
+#    name:
+#    - os-prober
+#    state: absent
+#  register: _rup_out
+#- name: RUP results
+#  when: _rup_out.changed
+#  ansible.builtin.debug: var=_rup_out.results
+
+- name: Upgrade all installed packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  register: _uai_out
+- name: UAIP Results
+  when: _uai_out.changed
+  ansible.builtin.debug: var=_uai_out.results
+
+# Enable persistent journal with reasonable lifetimes
+- name: Create persistent journal dir
+  ansible.builtin.file:
+    path: /var/log/journal
+    owner: root
+    group: systemd-journal
+    state: directory
+    mode: '0755'
+  notify:
+  - Restart journald
+  - Flush journald
+
+- name: Journald config
+  ansible.builtin.template:
+    src: journald.conf.j2
+    dest: /etc/systemd/journald.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+  - Restart journald
+  - Flush journald
+
 # TODO: ssh disable password auth
 # TODO: ssh restrict to specific users
+
+# vim: ts=2 sts=2 sw=2 expandtab

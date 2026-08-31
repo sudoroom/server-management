@@ -1,0 +1,7 @@
+# Configuration knobs for spamassassin
+
+# Spam score threshold for outright rejecting messages at SMTP transaction time.
+# Should be a fair bit higher than the SA spam threhold of 5.0
+spam_score_reject_thresh: 15
+
+spam_reject_message: Mail rejected for spam content. Plase contact postmaster@ if you think this is in error.

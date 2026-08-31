@@ -13,8 +13,10 @@
   - aliases
   notify:
   - Restart postfix
+  # Postmap is disabled becuase nothing needs it at the moment. Re-enable if this changes.
   #- Postmap
-  - Postalias
+  # Alias DB is using texthash at the moment, so postalias is not needed.
+  #- Postalias
 
 - name: Start and enable postfix
   service: name=postfix enabled=yes state=started

@@ -1,0 +1,10 @@
+- name: Update GRUB2
+  ansible.builtin.command:
+    cmd: grub2-mkconfig -o /boot/grub2/grub.cfg --update-bls-cmdline
+
+- name: Restart journald
+  service: name=systemd-journald state=restarted
+
+- name: Flush journald
+  ansible.builtin.command:
+    cmd: journalctl --flush

@@ -2,6 +2,7 @@
   ansible.builtin.dnf:
     name:
     - spamassassin
+    - spamassassin-compile
     - spamass-milter
     - re2c
     - perl-ExtUtils-CBuilder

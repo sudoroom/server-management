@@ -59,7 +59,6 @@
 #       - Make sure we know what user the mailman tasks that do DB stuff operate as
 
 # TODO: config files
-# TODO: enable/start service
 # TODO: rest of stuff from https://gitlab.archlinux.org/archlinux/infrastructure/-/blob/master/roles/mariadb/tasks/main.yml?ref_type=heads
 # TODO: MariaDB is used by:
 # - Mailman

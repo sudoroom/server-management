@@ -1,13 +1,23 @@
 # Pre-installation manual tasks:
 # 1. Provision the VM / server
-# 2. Install AlmaLinux 9
-# 3. Set up root user with SSH key
-# 4. Set hostname and proper DNS records to match
-# Then you can run this playbook.
+# 2. Install AlmaLinux 10
+# 3. Set the server's hostname
+# 4. Set up root user with SSH key
+# 5. Set hostname and proper DNS records to match
+# 6. Manually add first admin user account:
+#    - # useradd -m sean
+#    - # passwd sean
+#    - # usermod -a -G wheel sean
+# 7. Establish ssh keys for the first admin user
+# Then you can run this playbook:
+# $ ansible-playbook playbooks/install-wolf.yml --ask-become-pass
 
-- name: Initial installation of wolf.zootboy.com
-  hosts: wolf.zootboy.com
-  remote_user: root
+# General notes:
+# 512 MiB of RAM seems to be too small for RHEL10 - saw OOM crashes on SELinux rule builds.
+
+- name: Initial installation of wolf-testing
+  hosts: wolf-testing.zootboy.com
+  become: true
   vars:
     unbound_take_over_resolv: true
     # The domain name that emails are sent & received from. Doesn't need to be the server's hostname.
@@ -30,8 +40,9 @@
   - { role: mailman3     }
 
 # General TODOs:
-# OS
-# - Switch to Alma 10
+# users
+# - Manage list of users via ansible
+# - Manage wheel membership via ansible
 # firewall
 # - Complete port blocking on outgoing connections
 # postfix
